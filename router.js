@@ -33,12 +33,6 @@ exports.route = (req) => {
   return matchHandler(req);
 }
 
-const errorHandler = new Handler((req, res) => {
-  res.writeHead(404, {'Content-Type': 'text/plain'});
-  res.write("No route registered for " + req.url);
-  res.end();
-});
-
 const mimes = {
   ".xml" : "application/xml",
   ".json": "application/json"
@@ -55,14 +49,32 @@ const matchHandler = (req) => {
     return req.method.toUpperCase() === route.method.toUpperCase() && requestPath === route.path;
   });
   if (route) {
-    return new Handler((req, res) => {
+    try {
       const filepath = __dirname + "/public/" + route.response;
       const data = fs.readFileSync(filepath);
       const mime = mimes[path.extname(filepath)] || "text/plain";
-      res.writeHead(route.status, {'Content-Type': mime});
-      res.write(data);
-      res.end();
-    });
+      return new Handler((req, res) => {
+        res.writeHead(route.status, {'Content-Type': mime});
+        res.write(data);
+        res.end();
+      });
+    } catch (e) {
+      console.log(e);
+      return new Handler((req, res) => {
+        res.writeHead(404, {'Content-Type': 'application/json'});
+        const error = {
+          message : e.message,
+        };
+        res.write(JSON.stringify(error));
+        res.end();
+      });
+
+    }
   }
-  return errorHandler;
+  return new Handler((req, res) => {
+    res.writeHead(404, {'Content-Type': 'text/plain'});
+    res.write("No route registered for " + req.url);
+    res.end();
+  });
+
 }
