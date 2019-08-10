@@ -12,7 +12,7 @@ const register = (method, url, callback) => {
   if (!handlers[url]) {
     handlers[url] = {};
   };
-  handlers[url][method] = new Handler(callback);
+  handlers[url][method.toUpperCase()] = new Handler(callback);
 }
 
 exports.GET = (url, callback) => {
@@ -48,3 +48,15 @@ const errorHandler = new Handler((req, res) => {
   res.end();
 });
 
+(function loadRoutes() {
+  const jsonfile = fs.readFileSync('./routes.json', 'utf-8');
+  const json = JSON.parse(jsonfile);
+  json.routes.forEach((route) => {
+    register(route.method, route.path, (req, res) => {
+      const data = fs.readFileSync(__dirname + "/public/" + route.response);
+      res.writeHead(route.status, {'Content-Type': 'application/json'});
+      res.write(data);
+      res.end();
+    });
+  });
+})();

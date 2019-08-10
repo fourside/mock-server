@@ -1,0 +1,17 @@
+{
+    "routes": [
+        {
+            "method": "GET",
+            "path": "/api/user?limit=10",
+            "response": "user.json",
+            "status": 200
+        },
+        {
+            "method": "POST",
+            "path": "/api/phone?offset=5",
+            "response": "phone.json",
+            "status": 201
+        }
+    ]
+}
+

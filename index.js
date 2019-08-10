@@ -4,7 +4,7 @@ const router = require('./router');
 
 router.GET('/', (req, res) => {
   res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.write('Hello World');
+  res.write('Hello, mock server!');
   res.end();
 });
 
