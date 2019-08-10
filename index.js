@@ -2,7 +2,7 @@
 const http = require('http');
 const router = require('./router');
 
-router.register('/', (req, res) => {
+router.GET('/', (req, res) => {
   res.writeHead(200, {'Content-Type': 'text/plain'});
   res.write('Hello World');
   res.end();
