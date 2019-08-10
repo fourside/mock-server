@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const parser = require('url');
 const handlers = {};
 
@@ -42,13 +43,20 @@ const errorHandler = new Handler((req, res) => {
   res.end();
 });
 
+const mimes = {
+  ".xml" : "application/xml",
+  ".json": "application/json"
+};
+
 (function loadRoutes() {
   const jsonfile = fs.readFileSync('./routes.json', 'utf-8');
   const json = JSON.parse(jsonfile);
   json.routes.forEach((route) => {
     register(route.method, route.path, (req, res) => {
-      const data = fs.readFileSync(__dirname + "/public/" + route.response);
-      res.writeHead(route.status, {'Content-Type': 'application/json'});
+      const filepath = __dirname + "/public/" + route.response;
+      const data = fs.readFileSync(filepath);
+      const mime = mimes[path.extname(filepath)] || "text/plain";
+      res.writeHead(route.status, {'Content-Type': mime});
       res.write(data);
       res.end();
     });
