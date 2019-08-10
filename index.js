@@ -8,6 +8,7 @@ const server = http.createServer((req, res) => {
   logger.info(req.method, req.url, res.statusCode);
 });
 
-server.listen(8000);
-logger.info("Server running.. listening 8000");
+const port = process.env.port || 8000;
+server.listen(port);
+logger.info("Server running.. listening", port);
 
