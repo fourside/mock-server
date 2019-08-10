@@ -26,15 +26,11 @@ register('GET', '/', (req, res) => {
 exports.route = (req) => {
   const url = parser.parse(req.url, true);
   const query = url.search || "";
-  const pathHandler = handlers[url.pathname + query];
-  if (!pathHandler) {
-    return errorHandler;
+  const pathHandler = handlers[url.pathname];
+  if (pathHandler) {
+    return pathHandler;
   }
-  const handler = pathHandler[req.method.toUpperCase()];
-  if (!handler) {
-    return errorHandler;
-  }
-  return handler;
+  return matchHandler(req);
 }
 
 const errorHandler = new Handler((req, res) => {
@@ -48,11 +44,18 @@ const mimes = {
   ".json": "application/json"
 };
 
-(function loadRoutes() {
+const matchHandler = (req) => {
   const jsonfile = fs.readFileSync('./routes.json', 'utf-8');
   const json = JSON.parse(jsonfile);
-  json.routes.forEach((route) => {
-    register(route.method, route.path, (req, res) => {
+
+  const url = parser.parse(req.url, true);
+  const query = url.search || "";
+  const requestPath = url.pathname + query;
+  const route = json.routes.find((route) => {
+    return req.method.toUpperCase() === route.method.toUpperCase() && requestPath === route.path;
+  });
+  if (route) {
+    return new Handler((req, res) => {
       const filepath = __dirname + "/public/" + route.response;
       const data = fs.readFileSync(filepath);
       const mime = mimes[path.extname(filepath)] || "text/plain";
@@ -60,5 +63,6 @@ const mimes = {
       res.write(data);
       res.end();
     });
-  });
-})();
+  }
+  return errorHandler;
+}
