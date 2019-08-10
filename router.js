@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const parser = require('url');
+const logger = require('./logger');
+
 const handlers = {};
 
 const Handler = function(callback) {
@@ -67,7 +69,7 @@ const matchHandler = (req) => {
         res.end();
       });
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return new Handler((req, res) => {
         res.writeHead(500, {'Content-Type': 'application/json'});
         res.write(JSON.stringify({ message : e.message }));
