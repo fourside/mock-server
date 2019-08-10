@@ -28,7 +28,8 @@ exports.route = (req) => {
   const query = url.search || "";
   const pathHandler = handlers[url.pathname];
   if (pathHandler) {
-    return pathHandler;
+    const handler = pathHandler[req.method.toUpperCase()];
+    if (handler) return handler;
   }
   return matchHandler(req);
 }
