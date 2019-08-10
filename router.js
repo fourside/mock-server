@@ -15,18 +15,12 @@ const register = (method, url, callback) => {
   handlers[url][method.toUpperCase()] = new Handler(callback);
 }
 
-exports.GET = (url, callback) => {
-  register('GET', url, callback);
-}
-exports.POST = (url, callback) => {
-  register('POST', url, callback);
-}
-exports.PUT = (url, callback) => {
-  register('PUT', url, callback);
-}
-exports.DELETE = (url, callback) => {
-  register('DELETE', url, callback);
-}
+// default routing
+register('GET', '/', (req, res) => {
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.write('Hello, mock server!');
+  res.end();
+});
 
 exports.route = (req) => {
   const url = parser.parse(req.url, true);
@@ -35,7 +29,7 @@ exports.route = (req) => {
   if (!pathHandler) {
     return errorHandler;
   }
-  const handler = pathHandler[req.method];
+  const handler = pathHandler[req.method.toUpperCase()];
   if (!handler) {
     return errorHandler;
   }
