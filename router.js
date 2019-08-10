@@ -3,51 +3,45 @@ const path = require('path');
 const parser = require('url');
 const logger = require('./logger');
 
-const handlers = {};
-
 const Handler = function(callback) {
   this.process = (req, res) => {
     return callback.apply(this, [req, res]);
   }
 }
 
-const register = (method, url, callback) => {
-  if (!handlers[url]) {
-    handlers[url] = {};
-  };
-  handlers[url][method.toUpperCase()] = new Handler(callback);
+exports.route = (req) => {
+  return matcher(req);
 }
 
-// default routing
-register('GET', '/', (req, res) => {
+const defaultHandler = new Handler((req, res) => {
   res.writeHead(200, {'Content-Type': 'text/plain'});
   res.write('Hello, mock server!');
   res.end();
 });
 
-exports.route = (req) => {
-  const url = parser.parse(req.url, true);
-  const query = url.search || "";
-  const pathHandler = handlers[url.pathname];
-  if (pathHandler) {
-    const handler = pathHandler[req.method.toUpperCase()];
-    if (handler) return handler;
-  }
-  return matchHandler(req);
-}
+const notFoundErrorHandler = new Handler((req, res) => {
+  res.writeHead(404, {'Content-Type': 'text/plain'});
+  res.write("No route registered for " + req.url);
+  res.end();
+});
 
 const mimes = {
   ".xml" : "application/xml",
   ".json": "application/json"
 };
 
-const matchHandler = (req) => {
+const matcher = (req) => {
   const jsonfile = fs.readFileSync('./routes.json', 'utf-8');
   const json = JSON.parse(jsonfile);
 
   const url = parser.parse(req.url, true);
   const query = url.search || "";
   const requestPath = url.pathname + query;
+
+  if (requestPath === '/' && req.method === 'GET') {
+    return defaultHandler;
+  }
+
   const route = json.routes.find((route) => {
     if (req.method.toUpperCase() !== route.method.toUpperCase()) {
       return false;
@@ -78,10 +72,5 @@ const matchHandler = (req) => {
 
     }
   }
-  return new Handler((req, res) => {
-    res.writeHead(404, {'Content-Type': 'text/plain'});
-    res.write("No route registered for " + req.url);
-    res.end();
-  });
-
+  return notFoundErrorHandler;
 }
