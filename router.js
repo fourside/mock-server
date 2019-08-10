@@ -69,11 +69,8 @@ const matchHandler = (req) => {
     } catch (e) {
       console.log(e);
       return new Handler((req, res) => {
-        res.writeHead(404, {'Content-Type': 'application/json'});
-        const error = {
-          message : e.message,
-        };
-        res.write(JSON.stringify(error));
+        res.writeHead(500, {'Content-Type': 'application/json'});
+        res.write(JSON.stringify({ message : e.message }));
         res.end();
       });
 
