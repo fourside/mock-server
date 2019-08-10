@@ -7,6 +7,12 @@
             "status": 200
         },
         {
+            "method": "GET",
+            "pathpattern": "^/api/error\\?level=debug$",
+            "response": "error.json",
+            "status": 400
+        },
+        {
             "method": "POST",
             "path": "/api/phone?offset=5",
             "response": "phone.json",

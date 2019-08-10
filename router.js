@@ -46,7 +46,14 @@ const matchHandler = (req) => {
   const query = url.search || "";
   const requestPath = url.pathname + query;
   const route = json.routes.find((route) => {
-    return req.method.toUpperCase() === route.method.toUpperCase() && requestPath === route.path;
+    if (req.method.toUpperCase() !== route.method.toUpperCase()) {
+      return false;
+    }
+    if (route.pathpattern) {
+      const pattern = new RegExp(route.pathpattern);
+      return pattern.test(requestPath);
+    }
+    return requestPath === route.path;
   });
   if (route) {
     try {
