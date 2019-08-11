@@ -1,5 +1,8 @@
 # mock-server
 
+- a mock HTTP server for development that maps a request path to a local file.
+- routing rule can contain request query string.
+
 ## usage
 
 1. edit `routes.json` which maps a request path and its query to a file of response body.
